@@ -2654,6 +2654,11 @@ void Lookahead::slicetypeDecide()
     }
 }
 
+void Lookahead::calculateDurations(Frame *frame, Frame *prevFrame, int64_t *cpbDelay, int64_t *dispCount)
+{
+    //TODO
+}
+
 void Lookahead::vbvLookahead(Lowres **frames, int numFrames, int keyframe)
 {
     int prevNonB = 0, curNonB = 1, idx = 0;
