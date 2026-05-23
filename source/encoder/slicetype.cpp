@@ -968,10 +968,11 @@ void LookaheadTLD::weightsAnalyse(Lowres& fenc, Lowres& ref)
     }
 }
 
-Lookahead::Lookahead(x265_param *param, ThreadPool* pool)
+Lookahead::Lookahead(x265_param *param, ThreadPool* pool, SPS* sps)
 {
     m_param = param;
     m_pool  = pool;
+    m_sps   = sps;
 
     m_lastNonB = NULL;
     m_isSceneTransition = false;
@@ -992,6 +993,10 @@ Lookahead::Lookahead(x265_param *param, ThreadPool* pool)
     m_fadeCount = 0;
     m_fadeStart = -1;
     m_origPicBuf = 0;
+
+    /* HRD counters */
+    m_codedPicCount = 0;
+    m_cpbDelay = 0;
 
     /* Allow the strength to be adjusted via qcompress, since the two concepts
      * are very similar. */
@@ -2578,6 +2583,7 @@ void Lookahead::slicetypeDecide()
          * in the output queue. The order is important because Frame can
          * only be in one list at a time */
         int64_t pts[X265_BFRAME_MAX + 1];
+        uint8_t codedFrameOrderedIndex[X265_BFRAME_MAX + 1];
         for (int i = 0; i <= bframes; i++)
         {
             Frame *curFrame;
@@ -2589,8 +2595,9 @@ void Lookahead::slicetypeDecide()
 
         m_outputLock.acquire();
 
-        /* add non-B to output queue */
         int idx = 0;
+        /* add non-B to output queue */
+        codedFrameOrderedIndex[idx] = bframes;
         list[bframes]->m_reorderedPts = pts[idx++];
         m_outputQueue.pushBack(*list[bframes]);
 
@@ -2601,6 +2608,7 @@ void Lookahead::slicetypeDecide()
             {
                 if (list[i]->m_lowres.sliceType == X265_TYPE_BREF)
                 {
+                    codedFrameOrderedIndex[idx] = i;
                     list[i]->m_reorderedPts = pts[idx++];
                     m_outputQueue.pushBack(*list[i]);
                 }
@@ -2613,11 +2621,20 @@ void Lookahead::slicetypeDecide()
             /* push all the B frames into output queue except B-ref, which already pushed into output queue */
             if (list[i]->m_lowres.sliceType != X265_TYPE_BREF)
             {
+                codedFrameOrderedIndex[idx] = i;
                 list[i]->m_reorderedPts = pts[idx++];
                 m_outputQueue.pushBack(*list[i]);
             }
         }
 
+        // Compute HRD CpbDpb delays
+        for (int i = 0; i <= bframes; ++i)
+        {
+            /* to keep cpb and dpb operations in sync, use the display duration of the current picture to specify the pic
+            lifetime in the cpb. Given that pulldown sequences are alternating between single-doubling or doubling-tripling,
+            the cpb lifetime "error" is limited to 1 time clock and does not accumulate on long re-ordered sequences */
+            calculateDurations(list[codedFrameOrderedIndex[i]], list[i]->m_duration);
+        }
 
         bool isKeyFrameAnalyse = (m_param->rc.cuTree || (m_param->rc.vbvBufferSize && m_param->lookaheadDepth));
         if (isKeyFrameAnalyse && IS_X265_TYPE_I(m_lastNonB->sliceType))
@@ -2654,9 +2671,30 @@ void Lookahead::slicetypeDecide()
     }
 }
 
-void Lookahead::calculateDurations(Frame *frame, Frame *prevFrame, int64_t *cpbDelay, int64_t *dispCount)
+void Lookahead::calculateDurations(Frame *frame, int64_t concurrentDisplayDuration)
 {
-    //TODO
+    frame->m_cpbDelay = m_cpbDelay;
+    frame->m_dpbOutputDelay = frame->m_displayPicCount - m_codedPicCount;
+    frame->m_plannedCpbDuration = concurrentDisplayDuration;
+    frame->m_codedPicCount = m_codedPicCount;
+
+    /* largest re-ordering at highest temporal layer */
+    frame->m_dpbOutputDelay += 1 + m_sps->numReorderPics[X265_MAX(0, (m_param->bEnableTemporalSubLayers - 1))];
+
+    if (frame->m_dpbOutputDelay < 0)
+    {
+        frame->m_cpbDelay += frame->m_dpbOutputDelay;
+        frame->m_dpbOutputDelay = 0;
+    }
+
+    /* HRD counters are reset after a Buffering Period SEI (attached with the keyframe) */
+    if (!m_param->bIntraRefresh && frame->m_lowres.bKeyframe)
+    {
+        m_cpbDelay = 0;
+    }
+
+    m_cpbDelay += concurrentDisplayDuration;
+    m_codedPicCount += frame->m_duration;
 }
 
 void Lookahead::vbvLookahead(Lowres **frames, int numFrames, int keyframe)
