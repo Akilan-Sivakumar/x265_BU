@@ -432,14 +432,14 @@ jobs:
           test -f x265      && echo "CLI binary OK"
           test -f libx265.a && echo "Static library OK"
           ./x265 --version
-          echo "--- Unit tests ---"
-          ./test/TestBench
 
       - name: Upload CLI binary
         uses: actions/upload-artifact@v7
         with:
           name: x265-8bit
-          path: build/8bit/x265
+          path: |
+            build/8bit/x265
+            build/8bit/test/TestBench
           retention-days: 3
 
       - name: Upload library artifacts
@@ -500,13 +500,14 @@ jobs:
           make -j$(nproc)
           test -f x265 && echo "10-bit CLI OK"
           ./x265 --version
-          ./test/TestBench
 
       - name: Upload CLI binary
         uses: actions/upload-artifact@v7
         with:
           name: x265-10bit
-          path: build/10bit/x265
+          path: |
+            build/10bit/x265
+            build/10bit/test/TestBench
           retention-days: 3
 
   build-12bit:
@@ -560,13 +561,14 @@ jobs:
           make -j$(nproc)
           test -f x265 && echo "12-bit CLI OK"
           ./x265 --version
-          ./test/TestBench
 
       - name: Upload CLI binary
         uses: actions/upload-artifact@v7
         with:
           name: x265-12bit
-          path: build/12bit/x265
+          path: |
+            build/12bit/x265
+            build/12bit/test/TestBench
           retention-days: 3
 
   build-multilib:
@@ -1903,6 +1905,8 @@ jobs:
           echo "===== TSAN 12-bit FAIL=$FAIL ====="
           test $FAIL -eq 0
 
+      
+
       - name: Write step summary
         if: always()
         run: |
@@ -1935,6 +1939,166 @@ jobs:
           name: summaries-threading
           path: summaries/*.log
           retention-days: 3
+  
+  test-checkasm-8bit:
+    name: "Assembly Unit Tests - 8-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    needs: [build-8bit]
+    steps:
+      - name: Download 8-bit binary and TestBench
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-8bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1
+
+      - name: Run TestBench — all SIMD levels
+        run: |
+          chmod +x dist/TestBench
+          FAIL=0
+
+          echo "===== No ASM (C reference only) ====="
+          dist/TestBench --no-asm         || FAIL=$((FAIL+1))
+
+          echo "===== SSE2 ====="
+          dist/TestBench --asm SSE2       || FAIL=$((FAIL+1))
+
+          echo "===== SSSE3 ====="
+          dist/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
+
+          echo "===== SSE4.2 ====="
+          dist/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
+
+          echo "===== AVX2 ====="
+          dist/TestBench --asm AVX2       || FAIL=$((FAIL+1))
+
+          echo "===== Full auto-detected ====="
+          dist/TestBench                  || FAIL=$((FAIL+1))
+
+          echo "===== Assembly FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+      - name: Write step summary
+        if: always()
+        run: |
+          {
+            echo "## Assembly Unit Tests - 8-bit"
+            echo ""
+            echo "Tests each SIMD assembly routine (pixel, DCT, MC, SAO, deblock, quant)"
+            echo "against its C reference implementation at SSE2, SSSE3, SSE4, AVX2."
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  test-checkasm-10bit:
+    name: "Assembly Unit Tests - 10-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    needs: [build-10bit]
+    steps:
+      - name: Download 10-bit binary and TestBench
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-10bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1
+
+      - name: Run TestBench — all SIMD levels
+        run: |
+          chmod +x dist/TestBench
+          FAIL=0
+
+          echo "===== No ASM (C reference only) ====="
+          dist/TestBench --no-asm         || FAIL=$((FAIL+1))
+
+          echo "===== SSE2 ====="
+          dist/TestBench --asm SSE2       || FAIL=$((FAIL+1))
+
+          echo "===== SSSE3 ====="
+          dist/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
+
+          echo "===== SSE4.2 ====="
+          dist/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
+
+          echo "===== AVX2 ====="
+          dist/TestBench --asm AVX2       || FAIL=$((FAIL+1))
+
+          echo "===== Full auto-detected ====="
+          dist/TestBench                  || FAIL=$((FAIL+1))
+
+          echo "===== Assembly FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+      - name: Write step summary
+        if: always()
+        run: |
+          {
+            echo "## Assembly Unit Tests - 10-bit"
+            echo ""
+            echo "Tests HIGH_BIT_DEPTH assembly routines against C reference at each SIMD level."
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  test-checkasm-12bit:
+    name: "Assembly Unit Tests - 12-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    needs: [build-12bit]
+    steps:
+      - name: Download 12-bit binary and TestBench
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-12bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1
+
+      - name: Run TestBench — all SIMD levels
+        run: |
+          chmod +x dist/TestBench
+          FAIL=0
+
+          echo "===== No ASM (C reference only) ====="
+          dist/TestBench --no-asm         || FAIL=$((FAIL+1))
+
+          echo "===== SSE2 ====="
+          dist/TestBench --asm SSE2       || FAIL=$((FAIL+1))
+
+          echo "===== SSSE3 ====="
+          dist/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
+
+          echo "===== SSE4.2 ====="
+          dist/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
+
+          echo "===== AVX2 ====="
+          dist/TestBench --asm AVX2       || FAIL=$((FAIL+1))
+
+          echo "===== Full auto-detected ====="
+          dist/TestBench                  || FAIL=$((FAIL+1))
+
+          echo "===== Assembly FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+      - name: Write step summary
+        if: always()
+        run: |
+          {
+            echo "## Assembly Unit Tests - 12-bit"
+            echo ""
+            echo "Tests MAIN12 assembly routines against C reference at each SIMD level."
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
   test-10bit-12bit-encoding:
     name: "Test 10-bit & 12-bit Encoding"
@@ -2548,7 +2712,10 @@ jobs:
       - test-asan-12bit
       - test-tsan-8bit
       - test-tsan-10bit
-      - test-tsan-12bit 
+      - test-tsan-12bit
+      - test-checkasm-8bit
+      - test-checkasm-10bit
+      - test-checkasm-12bit
     if: always() && (github.event_name == 'pull_request_target')
 
     steps:
@@ -2586,6 +2753,9 @@ jobs:
           echo "  TSAN 8-bit tst : ${{ needs.test-tsan-8bit.result }}"
           echo "  TSAN 10-bit tst: ${{ needs.test-tsan-10bit.result }}"
           echo "  TSAN 12-bit tst: ${{ needs.test-tsan-12bit.result }}"
+          echo "  Checkasm 8-bit : ${{ needs.test-checkasm-8bit.result }}"
+          echo "  Checkasm 10-bit: ${{ needs.test-checkasm-10bit.result }}"
+          echo "  Checkasm 12-bit: ${{ needs.test-checkasm-12bit.result }}"
           echo "================================================"
           ALL_PASS=true
           [[ "${{ needs.code-quality.result }}"            != "success" ]] && ALL_PASS=false && echo "   -> Code quality gate failed"
@@ -2614,6 +2784,9 @@ jobs:
           [[ "${{ needs.test-tsan-8bit.result }}"   != "success" ]] && ALL_PASS=false && echo "   -> TSAN 8-bit tests failed"
           [[ "${{ needs.test-tsan-10bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> TSAN 10-bit tests failed"
           [[ "${{ needs.test-tsan-12bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> TSAN 12-bit tests failed"
+          [[ "${{ needs.test-checkasm-8bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> Assembly tests 8-bit failed"
+          [[ "${{ needs.test-checkasm-10bit.result }}" != "success" ]] && ALL_PASS=false && echo "   -> Assembly tests 10-bit failed"
+          [[ "${{ needs.test-checkasm-12bit.result }}" != "success" ]] && ALL_PASS=false && echo "   -> Assembly tests 12-bit failed"
           if $ALL_PASS; then
             echo "[OK] ALL CHECKS PASSED - READY TO MERGE"
           else
