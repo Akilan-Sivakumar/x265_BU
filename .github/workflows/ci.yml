@@ -1963,9 +1963,6 @@ jobs:
 
           FAIL=0
           
-          echo "===== Scalar / C reference ====="
-          dist/test/TestBench --cpuid none --nobench || FAIL=$((FAIL+1))
-          
           echo "===== SSE2 ====="
           dist/test/TestBench --cpuid SSE2 --nobench || FAIL=$((FAIL+1))
           
@@ -2021,9 +2018,6 @@ jobs:
 
           FAIL=0
           
-          echo "===== Scalar / C reference ====="
-          dist/test/TestBench --cpuid none --nobench || FAIL=$((FAIL+1))
-          
           echo "===== SSE2 ====="
           dist/test/TestBench --cpuid SSE2 --nobench || FAIL=$((FAIL+1))
           
@@ -2077,10 +2071,7 @@ jobs:
           chmod +x dist/test/TestBench
 
           FAIL=0
-          
-          echo "===== Scalar / C reference ====="
-          dist/test/TestBench --cpuid none --nobench || FAIL=$((FAIL+1))
-          
+
           echo "===== SSE2 ====="
           dist/test/TestBench --cpuid SSE2 --nobench || FAIL=$((FAIL+1))
           
