@@ -666,6 +666,240 @@ jobs:
             build/multilib/8bit/libx265.so*
             build/multilib/8bit/libx265.a
           retention-days: 3
+  
+  build-asan-8bit:
+    name: "Build ASAN/UBSAN - 8-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [code-quality]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake nasm libnuma-dev
+
+      - name: Build
+        run: |
+          mkdir -p build/asan-8bit && cd build/asan-8bit
+          cmake ../../source \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_CLI=ON \
+            -DENABLE_ASSEMBLY=ON \
+            -DENABLE_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          make -j$(nproc)
+          ./x265 --version
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: x265-asan-8bit
+          path: build/asan-8bit/x265
+          retention-days: 3
+
+  build-asan-10bit:
+    name: "Build ASAN/UBSAN - 10-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [code-quality]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake nasm libnuma-dev
+
+      - name: Build
+        run: |
+          mkdir -p build/asan-10bit && cd build/asan-10bit
+          cmake ../../source \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DHIGH_BIT_DEPTH=ON \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_CLI=ON \
+            -DENABLE_ASSEMBLY=ON \
+            -DENABLE_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          make -j$(nproc)
+          ./x265 --version
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: x265-asan-10bit
+          path: build/asan-10bit/x265
+          retention-days: 3
+
+  build-asan-12bit:
+    name: "Build ASAN/UBSAN - 12-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [code-quality]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake nasm libnuma-dev
+
+      - name: Build
+        run: |
+          mkdir -p build/asan-12bit && cd build/asan-12bit
+          cmake ../../source \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DHIGH_BIT_DEPTH=ON \
+            -DMAIN12=ON \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_CLI=ON \
+            -DENABLE_ASSEMBLY=ON \
+            -DENABLE_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          make -j$(nproc)
+          ./x265 --version
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: x265-asan-12bit
+          path: build/asan-12bit/x265
+          retention-days: 3
+
+  build-tsan-8bit:
+    name: "Build TSAN - 8-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [code-quality]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake nasm libnuma-dev
+
+      - name: Build
+        run: |
+          mkdir -p build/tsan-8bit && cd build/tsan-8bit
+          cmake ../../source \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_CLI=ON \
+            -DENABLE_ASSEMBLY=ON \
+            -DENABLE_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
+          make -j$(nproc)
+          ./x265 --version
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: x265-tsan-8bit
+          path: build/tsan-8bit/x265
+          retention-days: 3
+
+  build-tsan-10bit:
+    name: "Build TSAN - 10-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [code-quality]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake nasm libnuma-dev
+
+      - name: Build
+        run: |
+          mkdir -p build/tsan-10bit && cd build/tsan-10bit
+          cmake ../../source \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DHIGH_BIT_DEPTH=ON \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_CLI=ON \
+            -DENABLE_ASSEMBLY=ON \
+            -DENABLE_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
+          make -j$(nproc)
+          ./x265 --version
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: x265-tsan-10bit
+          path: build/tsan-10bit/x265
+          retention-days: 3
+
+  build-tsan-12bit:
+    name: "Build TSAN - 12-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [code-quality]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake nasm libnuma-dev
+
+      - name: Build
+        run: |
+          mkdir -p build/tsan-12bit && cd build/tsan-12bit
+          cmake ../../source \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DHIGH_BIT_DEPTH=ON \
+            -DMAIN12=ON \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_CLI=ON \
+            -DENABLE_ASSEMBLY=ON \
+            -DENABLE_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
+          make -j$(nproc)
+          ./x265 --version
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: x265-tsan-12bit
+          path: build/tsan-12bit/x265
+          retention-days: 3
 
   # ───────────────────────────────────────────────────────────────────────────
   # Phase 2 – Tests + Smoke Tests (parallel; each depends only on the binary it needs)
@@ -1357,6 +1591,318 @@ jobs:
           mkdir -p summaries && cp /tmp/summary.log summaries/threading.log 2>/dev/null || true
           test $FAIL -eq 0
 
+  test-asan-8bit:
+    name: "Test ASAN/UBSAN - 8-bit (All Suites)"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [build-asan-8bit]
+    steps:
+      - name: Download ASAN 8-bit binary
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-asan-8bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1 ffmpeg wget
+
+      - name: Cache xiph.org test videos
+        id: cache-videos
+        uses: actions/cache@v5
+        with:
+          path: testdata
+          key: xiph-test-videos-v1
+
+      - name: Download test videos (cache miss only)
+        if: steps.cache-videos.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p testdata
+          wget -q --tries=3 --timeout=60 -O testdata/bus_cif.y4m   https://media.xiph.org/video/derf/y4m/bus_cif.y4m
+          wget -q --tries=3 --timeout=60 -O testdata/akiyo_cif.y4m https://media.xiph.org/video/derf/y4m/akiyo_cif.y4m
+
+      - name: Prepare test data
+        run: |
+          chmod +x dist/x265
+          mkdir -p testdata
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=416x240:rate=30 -pix_fmt yuv420p  testdata/test_420_416x240.yuv
+          ffmpeg -y -f lavfi -i testsrc=duration=3:size=832x480:rate=30 -pix_fmt yuv420p  testdata/test_420_832x480.yuv
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=416x240:rate=30 -pix_fmt yuv422p  testdata/test_422_416x240.yuv
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=416x240:rate=30 -pix_fmt yuv444p  testdata/test_444_416x240.yuv
+          ffmpeg -y -f lavfi -i testsrc=duration=4:size=416x240:rate=30 -pix_fmt yuv420p  testdata/test_420_416x240_4s.yuv
+
+      - name: Run all 8-bit suites under ASAN
+        run: |
+          export ASAN_OPTIONS="halt_on_error=1:abort_on_error=1:detect_leaks=1"
+          export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"
+          X265=$(pwd)/dist/x265
+          FAIL=0
+
+          # ── CLI Presets & Tune Modes ──
+          echo "===== CLI PRESETS ====="
+          for preset in ultrafast superfast veryfast faster fast medium slow slower veryslow; do
+            $X265 --preset $preset --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv || FAIL=$((FAIL+1))
+          done
+          for tune in psnr ssim grain fastdecode zerolatency; do
+            $X265 --preset medium --tune $tune --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv || FAIL=$((FAIL+1))
+          done
+
+          # ── Rate Control Modes ──
+          echo "===== RATE CONTROL ====="
+          $X265 --preset medium --crf 22 --input-res 832x480 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_832x480.yuv                                                    || FAIL=$((FAIL+1))
+          $X265 --preset medium --qp 28 --input-res 832x480 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_832x480.yuv                                                     || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 1000 -F4 --input-res 832x480 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_832x480.yuv                                          || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 1000 --vbv-maxrate 1000 --vbv-bufsize 1000 -F4 --input-res 832x480 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_832x480.yuv   || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 1000 --pass 1 -F4 --input-res 832x480 --fps 30 --frames 60 -o /dev/null testdata/test_420_832x480.yuv                                     || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 1000 --pass 2 -F4 --input-res 832x480 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_832x480.yuv                                 || FAIL=$((FAIL+1))
+          rm -f x265_2pass.log x265_2pass.log.cutree
+
+          # ── Encoding Features ──
+          echo "===== ENCODING FEATURES ====="
+          $X265 --preset ultrafast --lossless --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv                    || FAIL=$((FAIL+1))
+          for ctu in 16 32 64; do
+            $X265 --preset medium --ctu $ctu --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv            || FAIL=$((FAIL+1))
+          done
+          for me in hex umh full; do
+            $X265 --preset medium --me $me --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv              || FAIL=$((FAIL+1))
+          done
+          $X265 --preset medium --weightp --weightb --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv     || FAIL=$((FAIL+1))
+          $X265 --preset medium --bframes 0 --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv             || FAIL=$((FAIL+1))
+          $X265 --preset medium --bframes 16 --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv            || FAIL=$((FAIL+1))
+          $X265 --preset medium --ssim --psnr --crf 22 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_416x240.yuv           || FAIL=$((FAIL+1))
+          $X265 --preset medium --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_422_416x240.yuv                         || FAIL=$((FAIL+1))
+          $X265 --preset medium --crf 28 --input-res 416x240 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_444_416x240.yuv                         || FAIL=$((FAIL+1))
+
+          # ── Analysis Save/Load ──
+          echo "===== ANALYSIS SAVE/LOAD ====="
+          $X265 --preset medium --analysis-save x265_analysis.dat --analysis-save-reuse-level 2 --bitrate 500 --input-res 416x240 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_416x240_4s.yuv || FAIL=$((FAIL+1))
+          $X265 --preset medium --analysis-load x265_analysis.dat --analysis-load-reuse-level 2 --bitrate 500 --input-res 416x240 --fps 30 --frames 60 -o /tmp/out.hevc testdata/test_420_416x240_4s.yuv || FAIL=$((FAIL+1))
+          rm -f x265_analysis.dat
+
+          # ── Real-World Video ──
+          echo "===== REAL-WORLD VIDEO ====="
+          $X265 --preset medium --crf 22 --ssim --psnr --frames 60 -o /tmp/out.hevc testdata/bus_cif.y4m   || FAIL=$((FAIL+1))
+          $X265 --preset medium --crf 22 --ssim --psnr --frames 60 -o /tmp/out.hevc testdata/akiyo_cif.y4m || FAIL=$((FAIL+1))
+
+          # ── Threading ──
+          echo "===== THREADING ====="
+          $X265 --preset medium --wpp --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv                   || FAIL=$((FAIL+1))
+          $X265 --preset medium --no-wpp --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv                || FAIL=$((FAIL+1))
+          for ft in 1 2 4; do
+            $X265 --preset medium --frame-threads $ft --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv   || FAIL=$((FAIL+1))
+          done
+
+          rm -f /tmp/out.hevc
+          echo "===== ASAN 8-bit FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+  test-asan-10bit:
+    name: "Test ASAN/UBSAN - 10-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [build-asan-10bit]
+    steps:
+      - name: Download ASAN 10-bit binary
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-asan-10bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1 ffmpeg
+
+      - name: Prepare test data
+        run: |
+          chmod +x dist/x265
+          mkdir -p testdata
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=832x480:rate=30 -pix_fmt yuv420p10le testdata/test_10bit_832x480.yuv
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=416x240:rate=30 -pix_fmt yuv420p10le testdata/test_10bit_416x240.yuv
+
+      - name: Run 10-bit suite under ASAN
+        run: |
+          export ASAN_OPTIONS="halt_on_error=1:abort_on_error=1:detect_leaks=1"
+          export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"
+          X265=$(pwd)/dist/x265
+          FAIL=0
+          $X265 --preset ultrafast --crf 28 --input-depth 10 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_10bit_416x240.yuv   || FAIL=$((FAIL+1))
+          $X265 --preset medium   --crf 22 --input-depth 10 --frames 30 --input-res 832x480 --fps 30 -o /tmp/out.hevc testdata/test_10bit_832x480.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset slow     --crf 20 --input-depth 10 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_10bit_416x240.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset ultrafast --lossless --input-depth 10 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_10bit_416x240.yuv || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 500 --pass 1 -F4 --input-depth 10 --frames 30 --input-res 416x240 --fps 30 -o /dev/null testdata/test_10bit_416x240.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 500 --pass 2 -F4 --input-depth 10 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_10bit_416x240.yuv || FAIL=$((FAIL+1))
+          rm -f /tmp/out.hevc x265_2pass.log x265_2pass.log.cutree
+          echo "===== ASAN 10-bit FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+  test-asan-12bit:
+    name: "Test ASAN/UBSAN - 12-bit"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [build-asan-12bit]
+    steps:
+      - name: Download ASAN 12-bit binary
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-asan-12bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1 ffmpeg
+
+      - name: Prepare test data
+        run: |
+          chmod +x dist/x265
+          mkdir -p testdata
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=416x240:rate=30 -pix_fmt yuv420p12le testdata/test_12bit_416x240.yuv
+
+      - name: Run 12-bit suite under ASAN
+        run: |
+          export ASAN_OPTIONS="halt_on_error=1:abort_on_error=1:detect_leaks=1"
+          export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"
+          X265=$(pwd)/dist/x265
+          FAIL=0
+          $X265 --preset ultrafast --crf 28 --input-depth 12 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_12bit_416x240.yuv   || FAIL=$((FAIL+1))
+          $X265 --preset medium   --crf 22 --input-depth 12 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_12bit_416x240.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset slow     --crf 20 --input-depth 12 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_12bit_416x240.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset ultrafast --lossless --input-depth 12 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_12bit_416x240.yuv || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 500 -F4 --input-depth 12 --frames 30 --input-res 416x240 --fps 30 -o /tmp/out.hevc testdata/test_12bit_416x240.yuv || FAIL=$((FAIL+1))
+          rm -f /tmp/out.hevc
+          echo "===== ASAN 12-bit FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+  test-tsan-8bit:
+    name: "Test TSAN - 8-bit (Threading Suite)"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [build-tsan-8bit]
+    steps:
+      - name: Download TSAN 8-bit binary
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-tsan-8bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1 ffmpeg
+
+      - name: Prepare test data
+        run: |
+          chmod +x dist/x265
+          mkdir -p testdata
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=832x480:rate=30 -pix_fmt yuv420p testdata/test_420_832x480.yuv
+
+      - name: Run threading suite under TSAN
+        run: |
+          export TSAN_OPTIONS="halt_on_error=1:abort_on_error=1"
+          X265=$(pwd)/dist/x265
+          FAIL=0
+          $X265 --preset medium --wpp    --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv || FAIL=$((FAIL+1))
+          $X265 --preset medium --no-wpp --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv || FAIL=$((FAIL+1))
+          for ft in 1 2 4; do
+            $X265 --preset medium --frame-threads $ft --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv || FAIL=$((FAIL+1))
+          done
+          for ls in 0 2 4; do
+            $X265 --preset medium --lookahead-slices $ls --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv || FAIL=$((FAIL+1))
+          done
+          $X265 --preset medium --bitrate 1000 --pass 1 -F4 --input-res 832x480 --fps 30 --frames 30 -o /dev/null testdata/test_420_832x480.yuv || FAIL=$((FAIL+1))
+          $X265 --preset medium --bitrate 1000 --pass 2 -F4 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_420_832x480.yuv || FAIL=$((FAIL+1))
+          rm -f /tmp/out.hevc x265_2pass.log x265_2pass.log.cutree
+          echo "===== TSAN 8-bit FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+  test-tsan-10bit:
+    name: "Test TSAN - 10-bit (Threading Suite)"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [build-tsan-10bit]
+    steps:
+      - name: Download TSAN 10-bit binary
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-tsan-10bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1 ffmpeg
+
+      - name: Prepare test data
+        run: |
+          chmod +x dist/x265
+          mkdir -p testdata
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=832x480:rate=30 -pix_fmt yuv420p10le testdata/test_10bit_832x480.yuv
+
+      - name: Run threading suite under TSAN
+        run: |
+          export TSAN_OPTIONS="halt_on_error=1:abort_on_error=1"
+          X265=$(pwd)/dist/x265
+          FAIL=0
+          $X265 --preset medium --wpp --input-depth 10 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_10bit_832x480.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset medium --no-wpp --input-depth 10 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_10bit_832x480.yuv || FAIL=$((FAIL+1))
+          for ft in 1 2 4; do
+            $X265 --preset medium --frame-threads $ft --input-depth 10 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_10bit_832x480.yuv || FAIL=$((FAIL+1))
+          done
+          for ls in 0 2 4; do
+            $X265 --preset medium --lookahead-slices $ls --input-depth 10 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_10bit_832x480.yuv || FAIL=$((FAIL+1))
+          done
+          rm -f /tmp/out.hevc
+          echo "===== TSAN 10-bit FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
+  test-tsan-12bit:
+    name: "Test TSAN - 12-bit (Threading Suite)"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request_target'
+    needs: [build-tsan-12bit]
+    steps:
+      - name: Download TSAN 12-bit binary
+        uses: actions/download-artifact@v8
+        with:
+          name: x265-tsan-12bit
+          path: dist
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnuma1 ffmpeg
+
+      - name: Prepare test data
+        run: |
+          chmod +x dist/x265
+          mkdir -p testdata
+          ffmpeg -y -f lavfi -i testsrc=duration=2:size=832x480:rate=30 -pix_fmt yuv420p12le testdata/test_12bit_832x480.yuv
+
+      - name: Run threading suite under TSAN
+        run: |
+          export TSAN_OPTIONS="halt_on_error=1:abort_on_error=1"
+          X265=$(pwd)/dist/x265
+          FAIL=0
+          $X265 --preset medium --wpp --input-depth 12 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_12bit_832x480.yuv    || FAIL=$((FAIL+1))
+          $X265 --preset medium --no-wpp --input-depth 12 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_12bit_832x480.yuv || FAIL=$((FAIL+1))
+          for ft in 1 2 4; do
+            $X265 --preset medium --frame-threads $ft --input-depth 12 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_12bit_832x480.yuv || FAIL=$((FAIL+1))
+          done
+          for ls in 0 2 4; do
+            $X265 --preset medium --lookahead-slices $ls --input-depth 12 --crf 28 --input-res 832x480 --fps 30 --frames 30 -o /tmp/out.hevc testdata/test_12bit_832x480.yuv || FAIL=$((FAIL+1))
+          done
+          rm -f /tmp/out.hevc
+          echo "===== TSAN 12-bit FAIL=$FAIL ====="
+          test $FAIL -eq 0
+
       - name: Write step summary
         if: always()
         run: |
@@ -1984,6 +2530,12 @@ jobs:
       - build-10bit
       - build-12bit
       - build-multilib
+      - build-asan-8bit
+      - build-asan-10bit
+      - build-asan-12bit
+      - build-tsan-8bit
+      - build-tsan-10bit
+      - build-tsan-12bit
       - test-cli-presets
       - test-rate-control
       - test-encoding-features
@@ -1991,6 +2543,12 @@ jobs:
       - test-video-and-validation
       - test-threading
       - test-10bit-12bit-encoding
+      - test-asan-8bit
+      - test-asan-10bit
+      - test-asan-12bit
+      - test-tsan-8bit
+      - test-tsan-10bit
+      - test-tsan-12bit 
     if: always() && (github.event_name == 'pull_request_target')
 
     steps:
@@ -2009,6 +2567,12 @@ jobs:
           echo "  Build 10-bit  : ${{ needs.build-10bit.result }}"
           echo "  Build 12-bit  : ${{ needs.build-12bit.result }}"
           echo "  Build Multilib: ${{ needs.build-multilib.result }}"
+          echo "  ASAN 8-bit bld : ${{ needs.build-asan-8bit.result }}"
+          echo "  ASAN 10-bit bld: ${{ needs.build-asan-10bit.result }}"
+          echo "  ASAN 12-bit bld: ${{ needs.build-asan-12bit.result }}"
+          echo "  TSAN 8-bit bld : ${{ needs.build-tsan-8bit.result }}"
+          echo "  TSAN 10-bit bld: ${{ needs.build-tsan-10bit.result }}"
+          echo "  TSAN 12-bit bld: ${{ needs.build-tsan-12bit.result }}"
           echo "  Test Presets  : ${{ needs.test-cli-presets.result }}"
           echo "  Test Rate Ctrl: ${{ needs.test-rate-control.result }}"
           echo "  Test Enc Feat : ${{ needs.test-encoding-features.result }}"
@@ -2016,6 +2580,12 @@ jobs:
           echo "  Test Video    : ${{ needs.test-video-and-validation.result }}"
           echo "  Test Threading: ${{ needs.test-threading.result }}"
           echo "  Test 10/12bit : ${{ needs.test-10bit-12bit-encoding.result }}"
+          echo "  ASAN 8-bit tst : ${{ needs.test-asan-8bit.result }}"
+          echo "  ASAN 10-bit tst: ${{ needs.test-asan-10bit.result }}"
+          echo "  ASAN 12-bit tst: ${{ needs.test-asan-12bit.result }}"
+          echo "  TSAN 8-bit tst : ${{ needs.test-tsan-8bit.result }}"
+          echo "  TSAN 10-bit tst: ${{ needs.test-tsan-10bit.result }}"
+          echo "  TSAN 12-bit tst: ${{ needs.test-tsan-12bit.result }}"
           echo "================================================"
           ALL_PASS=true
           [[ "${{ needs.code-quality.result }}"            != "success" ]] && ALL_PASS=false && echo "   -> Code quality gate failed"
@@ -2025,6 +2595,12 @@ jobs:
           [[ "${{ needs.build-10bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> 10-bit build failed"
           [[ "${{ needs.build-12bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> 12-bit build failed"
           [[ "${{ needs.build-multilib.result }}"          != "success" ]] && ALL_PASS=false && echo "   -> Multilib build failed"
+          [[ "${{ needs.build-asan-8bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> ASAN/UBSAN 8-bit build failed"
+          [[ "${{ needs.build-asan-10bit.result }}" != "success" ]] && ALL_PASS=false && echo "   -> ASAN/UBSAN 10-bit build failed"
+          [[ "${{ needs.build-asan-12bit.result }}" != "success" ]] && ALL_PASS=false && echo "   -> ASAN/UBSAN 12-bit build failed"
+          [[ "${{ needs.build-tsan-8bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> TSAN 8-bit build failed"
+          [[ "${{ needs.build-tsan-10bit.result }}" != "success" ]] && ALL_PASS=false && echo "   -> TSAN 10-bit build failed"
+          [[ "${{ needs.build-tsan-12bit.result }}" != "success" ]] && ALL_PASS=false && echo "   -> TSAN 12-bit build failed"
           [[ "${{ needs.test-cli-presets.result }}"        != "success" ]] && ALL_PASS=false && echo "   -> CLI presets test failed"
           [[ "${{ needs.test-rate-control.result }}"       != "success" ]] && ALL_PASS=false && echo "   -> Rate control test failed"
           [[ "${{ needs.test-encoding-features.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> Encoding features test failed"
@@ -2032,6 +2608,12 @@ jobs:
           [[ "${{ needs.test-video-and-validation.result }}" != "success" ]] && ALL_PASS=false && echo "   -> Video & validation test failed"
           [[ "${{ needs.test-threading.result }}"          != "success" ]] && ALL_PASS=false && echo "   -> Threading test failed"
           [[ "${{ needs.test-10bit-12bit-encoding.result }}" != "success" ]] && ALL_PASS=false && echo "   -> 10/12-bit encoding test failed"
+          [[ "${{ needs.test-asan-8bit.result }}"   != "success" ]] && ALL_PASS=false && echo "   -> ASAN/UBSAN 8-bit tests failed"
+          [[ "${{ needs.test-asan-10bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> ASAN/UBSAN 10-bit tests failed"
+          [[ "${{ needs.test-asan-12bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> ASAN/UBSAN 12-bit tests failed"
+          [[ "${{ needs.test-tsan-8bit.result }}"   != "success" ]] && ALL_PASS=false && echo "   -> TSAN 8-bit tests failed"
+          [[ "${{ needs.test-tsan-10bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> TSAN 10-bit tests failed"
+          [[ "${{ needs.test-tsan-12bit.result }}"  != "success" ]] && ALL_PASS=false && echo "   -> TSAN 12-bit tests failed"
           if $ALL_PASS; then
             echo "[OK] ALL CHECKS PASSED - READY TO MERGE"
           else
