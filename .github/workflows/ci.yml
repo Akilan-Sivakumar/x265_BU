@@ -439,7 +439,7 @@ jobs:
           name: x265-8bit
           path: |
             build/8bit/x265
-            build/8bit/test/TestBench
+            build/8bit/test/testbench
           retention-days: 3
 
       - name: Upload library artifacts
@@ -507,7 +507,7 @@ jobs:
           name: x265-10bit
           path: |
             build/10bit/x265
-            build/10bit/test/TestBench
+            build/10bit/test/testbench
           retention-days: 3
 
   build-12bit:
@@ -568,7 +568,7 @@ jobs:
           name: x265-12bit
           path: |
             build/12bit/x265
-            build/12bit/test/TestBench
+            build/12bit/test/testbench
           retention-days: 3
 
   build-multilib:
@@ -1946,7 +1946,7 @@ jobs:
     timeout-minutes: 30
     needs: [build-8bit]
     steps:
-      - name: Download 8-bit binary and TestBench
+      - name: Download 8-bit binary and testbench
         uses: actions/download-artifact@v8
         with:
           name: x265-8bit
@@ -1957,28 +1957,28 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq libnuma1
 
-      - name: Run TestBench — all SIMD levels
+      - name: Run testbench — all SIMD levels
         run: |
-          chmod +x dist/TestBench
+          chmod +x dist/testbench
           FAIL=0
 
           echo "===== No ASM (C reference only) ====="
-          dist/TestBench --no-asm         || FAIL=$((FAIL+1))
+          dist/testbench --no-asm         || FAIL=$((FAIL+1))
 
           echo "===== SSE2 ====="
-          dist/TestBench --asm SSE2       || FAIL=$((FAIL+1))
+          dist/testbench --asm SSE2       || FAIL=$((FAIL+1))
 
           echo "===== SSSE3 ====="
-          dist/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
+          dist/testbench --asm SSSE3      || FAIL=$((FAIL+1))
 
           echo "===== SSE4.2 ====="
-          dist/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
+          dist/testbench --asm SSE4.2     || FAIL=$((FAIL+1))
 
           echo "===== AVX2 ====="
-          dist/TestBench --asm AVX2       || FAIL=$((FAIL+1))
+          dist/testbench --asm AVX2       || FAIL=$((FAIL+1))
 
           echo "===== Full auto-detected ====="
-          dist/TestBench                  || FAIL=$((FAIL+1))
+          dist/testbench                  || FAIL=$((FAIL+1))
 
           echo "===== Assembly FAIL=$FAIL ====="
           test $FAIL -eq 0
@@ -2000,7 +2000,7 @@ jobs:
     timeout-minutes: 30
     needs: [build-10bit]
     steps:
-      - name: Download 10-bit binary and TestBench
+      - name: Download 10-bit binary and testbench
         uses: actions/download-artifact@v8
         with:
           name: x265-10bit
@@ -2011,28 +2011,28 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq libnuma1
 
-      - name: Run TestBench — all SIMD levels
+      - name: Run testbench — all SIMD levels
         run: |
-          chmod +x dist/TestBench
+          chmod +x dist/testbench
           FAIL=0
 
           echo "===== No ASM (C reference only) ====="
-          dist/TestBench --no-asm         || FAIL=$((FAIL+1))
+          dist/testbench --no-asm         || FAIL=$((FAIL+1))
 
           echo "===== SSE2 ====="
-          dist/TestBench --asm SSE2       || FAIL=$((FAIL+1))
+          dist/testbench --asm SSE2       || FAIL=$((FAIL+1))
 
           echo "===== SSSE3 ====="
-          dist/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
+          dist/testbench --asm SSSE3      || FAIL=$((FAIL+1))
 
           echo "===== SSE4.2 ====="
-          dist/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
+          dist/testbench --asm SSE4.2     || FAIL=$((FAIL+1))
 
           echo "===== AVX2 ====="
-          dist/TestBench --asm AVX2       || FAIL=$((FAIL+1))
+          dist/testbench --asm AVX2       || FAIL=$((FAIL+1))
 
           echo "===== Full auto-detected ====="
-          dist/TestBench                  || FAIL=$((FAIL+1))
+          dist/testbench                  || FAIL=$((FAIL+1))
 
           echo "===== Assembly FAIL=$FAIL ====="
           test $FAIL -eq 0
@@ -2053,7 +2053,7 @@ jobs:
     timeout-minutes: 30
     needs: [build-12bit]
     steps:
-      - name: Download 12-bit binary and TestBench
+      - name: Download 12-bit binary and testbench
         uses: actions/download-artifact@v8
         with:
           name: x265-12bit
@@ -2064,28 +2064,28 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq libnuma1
 
-      - name: Run TestBench — all SIMD levels
+      - name: Run testbench — all SIMD levels
         run: |
-          chmod +x dist/TestBench
+          chmod +x dist/testbench
           FAIL=0
 
           echo "===== No ASM (C reference only) ====="
-          dist/TestBench --no-asm         || FAIL=$((FAIL+1))
+          dist/testbench --no-asm         || FAIL=$((FAIL+1))
 
           echo "===== SSE2 ====="
-          dist/TestBench --asm SSE2       || FAIL=$((FAIL+1))
+          dist/testbench --asm SSE2       || FAIL=$((FAIL+1))
 
           echo "===== SSSE3 ====="
-          dist/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
+          dist/testbench --asm SSSE3      || FAIL=$((FAIL+1))
 
           echo "===== SSE4.2 ====="
-          dist/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
+          dist/testbench --asm SSE4.2     || FAIL=$((FAIL+1))
 
           echo "===== AVX2 ====="
-          dist/TestBench --asm AVX2       || FAIL=$((FAIL+1))
+          dist/testbench --asm AVX2       || FAIL=$((FAIL+1))
 
           echo "===== Full auto-detected ====="
-          dist/TestBench                  || FAIL=$((FAIL+1))
+          dist/testbench                  || FAIL=$((FAIL+1))
 
           echo "===== Assembly FAIL=$FAIL ====="
           test $FAIL -eq 0
