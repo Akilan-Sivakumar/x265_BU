@@ -1960,26 +1960,30 @@ jobs:
       - name: Run TestBench — all SIMD levels
         run: |
           chmod +x dist/test/TestBench
+
           FAIL=0
-
-          echo "===== No ASM (C reference only) ====="
-          dist/test/TestBench --no-asm         || FAIL=$((FAIL+1))
-
+          
+          echo "===== Scalar / C reference ====="
+          dist/test/TestBench --cpuid none --nobench || FAIL=$((FAIL+1))
+          
           echo "===== SSE2 ====="
-          dist/test/TestBench --asm SSE2       || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid SSE2 --nobench || FAIL=$((FAIL+1))
+          
           echo "===== SSSE3 ====="
-          dist/test/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
-
-          echo "===== SSE4.2 ====="
-          dist/test/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid SSSE3 --nobench || FAIL=$((FAIL+1))
+          
+          echo "===== SSE4 ====="
+          dist/test/TestBench --cpuid SSE4 --nobench || FAIL=$((FAIL+1))
+          
+          echo "===== AVX ====="
+          dist/test/TestBench --cpuid AVX --nobench || FAIL=$((FAIL+1))
+          
           echo "===== AVX2 ====="
-          dist/test/TestBench --asm AVX2       || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid AVX2 --nobench || FAIL=$((FAIL+1))
+          
           echo "===== Full auto-detected ====="
-          dist/test/TestBench                  || FAIL=$((FAIL+1))
-
+          dist/test/TestBench || FAIL=$((FAIL+1))
+          
           echo "===== Assembly FAIL=$FAIL ====="
           test $FAIL -eq 0
 
@@ -2014,26 +2018,30 @@ jobs:
       - name: Run TestBench — all SIMD levels
         run: |
           chmod +x dist/test/TestBench
+
           FAIL=0
-
-          echo "===== No ASM (C reference only) ====="
-          dist/test/TestBench --no-asm         || FAIL=$((FAIL+1))
-
+          
+          echo "===== Scalar / C reference ====="
+          dist/test/TestBench --cpuid none --nobench || FAIL=$((FAIL+1))
+          
           echo "===== SSE2 ====="
-          dist/test/TestBench --asm SSE2       || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid SSE2 --nobench || FAIL=$((FAIL+1))
+          
           echo "===== SSSE3 ====="
-          dist/test/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
-
-          echo "===== SSE4.2 ====="
-          dist/test/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid SSSE3 --nobench || FAIL=$((FAIL+1))
+          
+          echo "===== SSE4 ====="
+          dist/test/TestBench --cpuid SSE4 --nobench || FAIL=$((FAIL+1))
+          
+          echo "===== AVX ====="
+          dist/test/TestBench --cpuid AVX --nobench || FAIL=$((FAIL+1))
+          
           echo "===== AVX2 ====="
-          dist/test/TestBench --asm AVX2       || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid AVX2 --nobench || FAIL=$((FAIL+1))
+          
           echo "===== Full auto-detected ====="
-          dist/test/TestBench                  || FAIL=$((FAIL+1))
-
+          dist/test/TestBench || FAIL=$((FAIL+1))
+          
           echo "===== Assembly FAIL=$FAIL ====="
           test $FAIL -eq 0
 
@@ -2067,26 +2075,30 @@ jobs:
       - name: Run TestBench — all SIMD levels
         run: |
           chmod +x dist/test/TestBench
+
           FAIL=0
-
-          echo "===== No ASM (C reference only) ====="
-          dist/test/TestBench --no-asm         || FAIL=$((FAIL+1))
-
+          
+          echo "===== Scalar / C reference ====="
+          dist/test/TestBench --cpuid none --nobench || FAIL=$((FAIL+1))
+          
           echo "===== SSE2 ====="
-          dist/test/TestBench --asm SSE2       || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid SSE2 --nobench || FAIL=$((FAIL+1))
+          
           echo "===== SSSE3 ====="
-          dist/test/TestBench --asm SSSE3      || FAIL=$((FAIL+1))
-
-          echo "===== SSE4.2 ====="
-          dist/test/TestBench --asm SSE4.2     || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid SSSE3 --nobench || FAIL=$((FAIL+1))
+          
+          echo "===== SSE4 ====="
+          dist/test/TestBench --cpuid SSE4 --nobench || FAIL=$((FAIL+1))
+          
+          echo "===== AVX ====="
+          dist/test/TestBench --cpuid AVX --nobench || FAIL=$((FAIL+1))
+          
           echo "===== AVX2 ====="
-          dist/test/TestBench --asm AVX2       || FAIL=$((FAIL+1))
-
+          dist/test/TestBench --cpuid AVX2 --nobench || FAIL=$((FAIL+1))
+          
           echo "===== Full auto-detected ====="
-          dist/test/TestBench                  || FAIL=$((FAIL+1))
-
+          dist/test/TestBench || FAIL=$((FAIL+1))
+          
           echo "===== Assembly FAIL=$FAIL ====="
           test $FAIL -eq 0
 
